@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Project Enigma</title>
+</head>
+<body>
+    <h1>Project Enigma Dev Check</h1>
+    
+    <div th:if="${user != null}">
+        <p>User ID: <span th:text="${user.id}"></span></p>
+    </div>
+    <div th:unless="${user != null}">
+        <p style="color: red; font-weight: bold;">⚠️ User is NULL (取得失敗)</p>
+    </div>
+
+    <hr>
+
+    <div th:if="${progress != null}">
+        <p>Current Stage: <span th:text="${progress.currentStageId}"></span></p>
+        <p>Time: <span th:text="${progress.totalElapsedSeconds}"></span> sec</p>
+    </div>
+    <div th:unless="${progress != null}">
+        <p>Progress is NULL (新規 or 未取得)</p>
+    </div>
+</body>
+</html>
