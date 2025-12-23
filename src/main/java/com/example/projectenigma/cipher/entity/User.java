@@ -1,4 +1,4 @@
-package com.example.cipher.entity;
+package com.example.projectenigma.cipher.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
