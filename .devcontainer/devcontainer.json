@@ -1,0 +1,29 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/java
+{
+	"name": "Project-Enigma Dev",
+	"image": "mcr.microsoft.com/devcontainers/java:1-21-bullseye",
+	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "none",
+			"installMaven": "true",
+			"installGradle": "false"
+		}
+	},
+	// 【追加1】Spring Boot開発に必須の拡張機能を自動インストール
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"vscjava.vscode-java-pack", // Javaの基本セット
+				"vmware.vscode-spring-boot", // Spring Boot便利機能
+				"gabrielbb.vscode-lombok" // Lombok使うなら必須
+			]
+		}
+	},
+	// 【追加2】Webアプリの確認用にポート8080を開放
+	"forwardPorts": [
+		8080
+	]
+	// 初回起動時に依存関係をDLしとくならこれコメントアウト外してもええで
+	// "postCreateCommand": "mvn clean install -DskipTests",
+}
