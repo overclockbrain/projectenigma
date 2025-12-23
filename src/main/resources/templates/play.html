@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Stage [[${progress.currentStageId}]] - Project Enigma</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/timer.js}"></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="game-header">
+            <h3>User: <span th:text="${user.id.substring(0,8)} + '...'">ID</span></h3>
+            <p class="timer">Time: <span id="timer-val" th:text="${progress.totalElapsedSeconds}">0</span>s</p>
+        </div>
+
+        <hr>
+
+        <div th:if="${message}" th:classappend="${alertClass}" 
+             style="padding: 1rem; margin-bottom: 1rem; border-radius: 5px; color: white;"
+             th:styleappend="${alertClass == 'success'} ? 'background-color: #28a745;' : 'background-color: #dc3545;'">
+            <span th:text="${message}">Message</span>
+        </div>
+
+        <h1>Stage <span th:text="${progress.currentStageId}">1</span></h1>
+        
+        <div class="riddle-box" style="margin: 2rem 0; padding: 2rem; background: #eee; border-radius: 8px;">
+            <p style="font-size: 1.5rem; font-weight: bold;">Q. Red, round, and sweet. Snow White ate it. What is it?</p>
+            <p style="color: #666; font-size: 0.9rem;">(Hint: Check the Service code... it's "apple")</p>
+        </div>
+
+        <form th:action="@{/play/answer}" th:object="${answerForm}" method="post">
+            <input type="text" th:field="*{answer}" placeholder="Enter Answer..." 
+                   style="padding: 10px; font-size: 1.2rem;" required autofocus>
+            <button type="submit" class="btn" style="font-size: 1.2rem;">Answer</button>
+        </form>
+
+        <br>
+        <a th:href="@{/}" class="sub-link">← Return to Top</a>
+    </div>
+
+</body>
+</html>
