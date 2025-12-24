@@ -16,24 +16,34 @@
 
         <hr>
 
-        <div th:if="${message}" th:classappend="${alertClass}" 
-             style="padding: 1rem; margin-bottom: 1rem; border-radius: 5px; color: white;"
-             th:styleappend="${alertClass == 'success'} ? 'background-color: #28a745;' : 'background-color: #dc3545;'">
+        <div th:if="${message}" class="alert" th:classappend="${alertClass}">
             <span th:text="${message}">Message</span>
         </div>
 
         <h1>Stage <span th:text="${progress.currentStageId}">1</span></h1>
         
-        <div class="riddle-box" style="margin: 2rem 0; padding: 2rem; background: #eee; border-radius: 8px;">
-            <p style="font-size: 1.5rem; font-weight: bold;">Q. Red, round, and sweet. Snow White ate it. What is it?</p>
-            <p style="color: #666; font-size: 0.9rem;">(Hint: Check the Service code... it's "apple")</p>
+        <div th:if="${riddle == null}">
+            <h2>Congratulations! All Stages Cleared! 🎉</h2>
+            <p>You have proven your skills. Welcome to Project Enigma.</p>
+            <br>
+            <a th:href="@{/}" class="btn">Return to Top</a>
         </div>
 
-        <form th:action="@{/play/answer}" th:object="${answerForm}" method="post">
-            <input type="text" th:field="*{answer}" placeholder="Enter Answer..." 
-                   style="padding: 10px; font-size: 1.2rem;" required autofocus>
-            <button type="submit" class="btn" style="font-size: 1.2rem;">Answer</button>
-        </form>
+        <div th:if="${riddle != null}">
+            <div class="riddle-box">
+                <p class="mission-text" th:text="${riddle.hint}">Mission: ...</p>
+                
+                <div class="moving-target-container">
+                    <div class="moving-text" th:text="'KEY: ' + ${riddle.answer.toUpperCase()}">KEY: ???</div>
+                </div>
+            </div>
+
+            <form th:action="@{/play/answer}" th:object="${answerForm}" method="post" class="answer-form">
+                <input type="text" th:field="*{answer}" class="answer-input" 
+                       placeholder="Enter Answer..." required autofocus autocomplete="off">
+                <button type="submit" class="btn btn-answer">Answer</button>
+            </form>
+        </div>
 
         <br>
         <a th:href="@{/}" class="sub-link">← Return to Top</a>
