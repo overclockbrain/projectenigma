@@ -1,5 +1,11 @@
 package com.example.projectenigma.cipher.controller;
 
+import com.example.projectenigma.cipher.constant.ViewConst;
+import com.example.projectenigma.cipher.constant.PathConst;
+import com.example.projectenigma.cipher.entity.GameProgress;
+import com.example.projectenigma.cipher.entity.User;
+import com.example.projectenigma.cipher.repository.GameProgressRepository;
+import com.example.projectenigma.cipher.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -7,18 +13,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.example.projectenigma.cipher.entity.GameProgress;
-import com.example.projectenigma.cipher.entity.User;
-import com.example.projectenigma.cipher.repository.GameProgressRepository;
-import com.example.projectenigma.cipher.service.AuthService;
-
 import java.util.Optional;
 
 /**
  * トップページおよびルートアクセスの制御を行うコントローラー。
  *
  * @author R.Morioka
- * @version 1.0
+ * @version 1.1 (共通定数クラス利用)
  * @since 1.0
  */
 @Controller
@@ -35,12 +36,12 @@ public class RootController {
      * @param model    画面に渡すデータ
      * @param request  リクエスト情報
      * @param response レスポンス情報（Cookie書き込み用）
-     * @return テンプレート名
+     * @return テンプレート名 (ViewConst.VIEW_INDEX)
      * @author R.Morioka
-     * @version 1.0
+     * @version 1.1
      * @since 1.0
      */
-    @GetMapping("/")
+    @GetMapping(PathConst.ROOT)
     public String index(Model model, HttpServletRequest request, HttpServletResponse response) {
         // 1. サービスを呼ぶ
         User user = authService.authOrCreateUser(request, response);
@@ -56,6 +57,7 @@ public class RootController {
         model.addAttribute("user", user);
         model.addAttribute("progress", progressOpt.orElse(null));
 
-        return "index";
+        // ★定数クラスを使用
+        return ViewConst.VIEW_INDEX;
     }
 }

@@ -1,0 +1,12 @@
+[
+    {
+        "stageId": 1,
+        "answer": "flash",
+        "hint": "Mission: Catch the high-speed code!"
+    },
+    {
+        "stageId": 2,
+        "answer": "sky",
+        "hint": "Look up above."
+    }
+]
