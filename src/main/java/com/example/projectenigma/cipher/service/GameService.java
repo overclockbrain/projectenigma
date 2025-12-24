@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
  * ユーザーの解答をDBのマスタデータと照合し、ステージ進行を制御する。
  *
  * @author R.Morioka
- * @version 1.1 (DB連携対応)
+ * @version 1.2 (restart対応)
  * @since 1.0
  */
 @Service
@@ -59,5 +59,21 @@ public class GameService {
         }
 
         return isCorrect;
+    }
+
+    /**
+     * ユーザーの進捗を初期化（リスタート）する。
+     * @param userId ユーザーID
+     */
+    @Transactional
+    public void resetGame(String userId) {
+        GameProgress progress = gameProgressRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
+        progress.setCurrentStageId(1); // ステージ1へ
+        progress.setTotalElapsedSeconds(0L); // タイムリセット
+        // ※必要ならここでスコアのリセットなども行う
+
+        gameProgressRepository.save(progress);
     }
 }

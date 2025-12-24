@@ -1,8 +1,10 @@
 package com.example.projectenigma.cipher.controller;
 
+import com.example.projectenigma.cipher.constant.PathConst;
 import com.example.projectenigma.cipher.entity.GameProgress;
 import com.example.projectenigma.cipher.entity.User;
 import com.example.projectenigma.cipher.repository.GameProgressRepository;
+import com.example.projectenigma.cipher.repository.RiddleRepository;
 import com.example.projectenigma.cipher.service.AuthService;
 import com.example.projectenigma.cipher.service.GameService;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +18,8 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 // import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -48,6 +52,9 @@ public class GameControllerTest {
     /** ゲームロジックサービスのモック */
     @MockitoBean
     private GameService gameService;
+
+    @MockitoBean
+    private RiddleRepository riddleRepository;
 
     /**
      * GET /play の正常系テスト。
@@ -127,5 +134,36 @@ public class GameControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/play"))
                 .andExpect(flash().attribute("alertClass", "error"));
+    }
+
+    /**
+     * POST /play/restart のテスト。
+     * ゲームのリスタート処理が実行され、プレイ画面へリダイレクトされることを確認する。
+     * 
+     * @author R.Morioka
+     * @version 1.0
+     * @since 1.0
+     */
+
+    @Test
+    @DisplayName("POST /play/restart: リスタート処理が実行され、プレイ画面へリダイレクトされる")
+    void testRestartGame() throws Exception {
+        // 1. 準備
+        String userId = "test-user-id";
+        User mockUser = new User();
+        mockUser.setId(userId);
+        
+        // authServiceがユーザーを返すようにモック
+        when(authService.authOrCreateUser(any(), any())).thenReturn(mockUser);
+
+        // 2. 実行 & 検証
+        mockMvc.perform(post("/play" + PathConst.RESTART) // /play/restart
+                        // .with(csrf()) // セキュリティ入れたらコメントアウト外す
+                )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/play")); // リダイレクト先確認
+
+        // Serviceの resetGame がちゃんと1回呼ばれたか確認
+        verify(gameService, times(1)).resetGame(userId);
     }
 }

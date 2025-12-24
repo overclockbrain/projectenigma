@@ -38,6 +38,20 @@ h1 {
     font-weight: normal;
 }
 
+/* === ユーティリティクラス === */
+/* 要素を非表示にする（隠しフォーム用） */
+.hidden {
+    display: none !important;
+}
+
+/* ボタン配置の調整用（もし必要なら） */
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
 /* ==============================================
  * ナビゲーションとボタン
  * ============================================== */
@@ -182,4 +196,75 @@ a.btn:hover {
     font-size: 1.2rem;
     padding: 10px 20px;
     cursor: pointer;
+}
+
+/* ==============================================
+ * Clear Screen (Game Over / Success)
+ * クリア画面専用のスタイル定義
+ * ============================================== */
+.clear-screen {
+    animation: fadeIn 1s ease-in;
+}
+
+.clear-title {
+    color: #28a745;
+    margin-bottom: 2rem;
+}
+
+.clear-sub-text {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.score-board {
+    margin: 2rem auto;
+    padding: 1.5rem;
+    border: 2px dashed #28a745; /* 緑の破線枠 */
+    border-radius: 8px;
+    background-color: #f0fff4;
+    color: #333;
+    max-width: 400px;
+}
+
+.score-value {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* リプレイボタン（主役級のデザインへ強化） */
+.btn-replay {
+    /* ベーススタイルをリセット */
+    appearance: none;
+    border: none;
+    
+    /* デザイン */
+    background-color: #28a745; /* 成功色のグリーン */
+    color: white;
+    font-weight: bold;
+    border-radius: 50px; /* 丸みのあるピル型 */
+    padding: 1rem 3rem;  /* 大きめのクリック領域 */
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); /* ほんのり緑の影 */
+    
+    /* アニメーション設定 */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* ホバー時：ふわっと浮き上がる */
+.btn-replay:hover {
+    background-color: #218838; /* 少し濃いグリーン */
+    transform: translateY(-5px) scale(1.02); /* 上に浮いて少し大きくなる */
+    box-shadow: 0 10px 25px rgba(40, 167, 69, 0.5); /* 影が強くなる */
+}
+
+/* クリック時：押し込む感覚 */
+.btn-replay:active {
+    transform: translateY(-2px) scale(0.98); /* 少し沈む */
+    box-shadow: 0 5px 10px rgba(40, 167, 69, 0.4);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
