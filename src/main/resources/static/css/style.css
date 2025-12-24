@@ -1,0 +1,70 @@
+/*
+ * Project Enigma Main Stylesheet
+ * @author R.Morioka
+ * @version 1.0
+ * @since 1.0
+ */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+}
+
+.container {
+    background-color: white;
+    padding: 3rem 5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: center;
+    min-width: 400px;
+}
+
+h1 {
+    font-size: 4rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+    font-weight: normal;
+}
+
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+a.btn {
+    text-decoration: none;
+    color: #000;
+    font-size: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.2s;
+}
+
+a.btn:hover {
+    transform: translateX(10px);
+}
+
+.arrow {
+    font-size: 2rem;
+}
+
+.sub-link {
+    font-size: 1.5rem;
+    color: #666;
+    margin-top: 1rem;
+    text-decoration: none;
+    display: block;
+}
+
+.sub-link:hover {
+    color: #000;
+}

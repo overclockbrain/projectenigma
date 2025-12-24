@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Enigma</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <div class="container">
+        <div th:if="${progress.totalElapsedSeconds == 0 and progress.currentStageId == 1}">
+            <div class="btn-group">
+                <a th:href="@{/play}" class="btn">
+                    START <span class="arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+        <div th:unless="${progress.totalElapsedSeconds == 0 and progress.currentStageId == 1}">
+            <div class="btn-group">
+                <a th:href="@{/play}" class="btn">
+                    Continue <span class="arrow">→</span>
+                </a>
+                
+                <a th:href="@{/reset}" class="sub-link">
+                    ReStart <span class="arrow">→</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
