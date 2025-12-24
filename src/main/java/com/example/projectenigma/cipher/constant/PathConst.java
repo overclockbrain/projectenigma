@@ -5,7 +5,7 @@ package com.example.projectenigma.cipher.constant;
  * Controllerの@RequestMappingなどで使用する。
  *
  * @author R.Morioka
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 public class PathConst {
@@ -21,4 +21,7 @@ public class PathConst {
 
     /** 解答送信のアクションパス（相対パス） */
     public static final String ANSWER = "/answer";
+
+    /** リスタート用のパス */
+    public static final String RESTART = "/restart";
 }

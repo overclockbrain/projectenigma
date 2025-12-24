@@ -2,37 +2,29 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Stage [[${progress.currentStageId}]] - Project Enigma</title>
+    <title>Project Enigma</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <script th:src="@{/js/timer.js}"></script>
 </head>
 <body>
 
     <div class="container">
-        <div class="game-header">
-            <h3>User: <span th:text="${user.id.substring(0,8)} + '...'">ID</span></h3>
-            <p class="timer">Time: <span id="timer-val" th:text="${progress.totalElapsedSeconds}">0</span>s</p>
-        </div>
-
-        <hr>
-
-        <div th:if="${message}" class="alert" th:classappend="${alertClass}">
-            <span th:text="${message}">Message</span>
-        </div>
-
-        <h1>Stage <span th:text="${progress.currentStageId}">1</span></h1>
         
-        <div th:if="${riddle == null}">
-            <h2>Congratulations! All Stages Cleared! 🎉</h2>
-            <p>You have proven your skills. Welcome to Project Enigma.</p>
-            <br>
-            <a th:href="@{/}" class="btn">Return to Top</a>
-        </div>
-
         <div th:if="${riddle != null}">
+            <div class="game-header">
+                <h3>User: <span th:text="${user.id.substring(0,8)}">ID</span>...</h3>
+                <p class="timer">Time: <span id="timer-val" th:text="${progress.totalElapsedSeconds}">0</span>s</p>
+            </div>
+            <hr>
+
+            <div th:if="${message}" class="alert" th:classappend="${alertClass}">
+                <span th:text="${message}">Message</span>
+            </div>
+
+            <h1>Stage <span th:text="${progress.currentStageId}">1</span></h1>
+            
             <div class="riddle-box">
                 <p class="mission-text" th:text="${riddle.hint}">Mission: ...</p>
-                
                 <div class="moving-target-container">
                     <div class="moving-text" th:text="'KEY: ' + ${riddle.answer.toUpperCase()}">KEY: ???</div>
                 </div>
@@ -45,8 +37,29 @@
             </form>
         </div>
 
-        <br>
-        <a th:href="@{/}" class="sub-link">← Return to Top</a>
+
+        <div th:if="${riddle == null}" class="clear-screen">
+            <h1 class="clear-title">MISSION COMPLETE</h1>
+            
+            <p class="clear-sub-text">Congratulations!</p>
+            <p>You have deciphered all codes.</p>
+            
+            <div class="score-board">
+                <p>User: <span th:text="${user.id}">ID</span></p>
+                <p>Total Time: <span class="score-value" th:text="${progress.totalElapsedSeconds}">0</span> seconds</p>
+            </div>
+
+            <div class="btn-group">
+                <form th:action="@{/play/restart}" method="post">
+                    <button type="submit" class="btn btn-replay">
+                        ↻ Replay Mission
+                    </button>
+                </form>
+
+                <a th:href="@{/}" class="sub-link">Return to Top</a>
+            </div>
+        </div>
+
     </div>
 
 </body>

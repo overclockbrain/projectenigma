@@ -26,16 +26,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * ユーザーの認証、進行状況の取得、問題の表示、解答の判定結果へのリダイレクトを行う。
  *
  * @author R.Morioka
- * @version 1.3 (共通定数クラス利用)
+ * @version 1.4 (共通定数クラス利用)
  * @since 1.0
  */
 @Controller
 @RequestMapping(PathConst.PLAY)
 @RequiredArgsConstructor
 public class GameController {
-
-    // ★ここで定義してた定数は削除！
-
     private final AuthService authService;
     private final GameProgressRepository gameProgressRepository;
     private final GameService gameService;
@@ -81,6 +78,9 @@ public class GameController {
      * @param response HTTPレスポンス
      * @param redirectAttributes リダイレクト先にデータを渡すためのオブジェクト
      * @return プレイ画面へのリダイレクト (ViewConst.REDIRECT_PLAY)
+     * 
+     * @version 1.1
+     * @since 1.0
      */
     @PostMapping(PathConst.ANSWER)
     public String submitAnswer(@ModelAttribute AnswerForm answerForm,
@@ -101,6 +101,28 @@ public class GameController {
         }
 
         // ★定数クラスを使用
+        return ViewConst.REDIRECT_PLAY;
+    }
+
+    /**
+     * ゲームリスタート処理（POST /play/restart）。
+     * 進捗をリセットしてプレイ画面へリダイレクトする。
+     * 
+     * @param request HTTPリクエスト
+     * @param response HTTPレスポンス
+     * @return プレイ画面へのリダイレクト (ViewConst.REDIRECT_PLAY)
+     * 
+     * @version 1.0
+     * @since 1.0
+     */
+    @PostMapping(PathConst.RESTART)
+    public String restartGame(HttpServletRequest request, HttpServletResponse response) {
+        User user = authService.authOrCreateUser(request, response);
+        
+        // 進捗リセット実行
+        gameService.resetGame(user.getId());
+
+        // プレイ画面（ステージ1）へリダイレクト
         return ViewConst.REDIRECT_PLAY;
     }
 }

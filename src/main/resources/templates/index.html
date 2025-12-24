@@ -8,7 +8,7 @@
 <body>
 
     <div class="container">
-        <div th:if="${progress.totalElapsedSeconds == 0 and progress.currentStageId == 1}">
+        <div th:if="${progress == null or (progress.totalElapsedSeconds == 0 and progress.currentStageId == 1)}">
             <div class="btn-group">
                 <a th:href="@{/play}" class="btn">
                     START <span class="arrow">→</span>
@@ -16,17 +16,21 @@
             </div>
         </div>
 
-        <div th:unless="${progress.totalElapsedSeconds == 0 and progress.currentStageId == 1}">
+        <div th:unless="${progress == null or (progress.totalElapsedSeconds == 0 and progress.currentStageId == 1)}">
             <div class="btn-group">
                 <a th:href="@{/play}" class="btn">
                     Continue <span class="arrow">→</span>
                 </a>
                 
-                <a th:href="@{/reset}" class="sub-link">
+                <a href="#" onclick="document.getElementById('restartForm').submit(); return false;" class="sub-link">
                     ReStart <span class="arrow">→</span>
                 </a>
+
+                <form id="restartForm" th:action="@{/play/restart}" method="post" class="hidden">
+                </form>
             </div>
         </div>
     </div>
+
 </body>
 </html>

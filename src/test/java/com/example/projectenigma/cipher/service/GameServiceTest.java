@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
  * RiddleRepositoryのモックを使用し、DBから正解を取得するフローを検証する。
  *
  * @author R.Morioka
- * @version 1.1
+ * @version 1.2
  * @since 1.0
  */
 @ExtendWith(MockitoExtension.class)
@@ -134,5 +134,36 @@ class GameServiceTest {
         assertFalse(result);
         assertEquals(1, progress.getCurrentStageId());
         verify(gameProgressRepository, never()).save(any());
+    }
+
+    /**
+     * 進捗リセットのテスト。
+     * - ステージが1に戻り、経過時間が0になることを確認する
+     * 
+     * @author R.Morioka
+     * @version 1.0
+     * @since 1.0
+     */
+    @Test
+    @DisplayName("resetGame: 進捗が初期化（ステージ1、タイム0）されて保存される")
+    void testResetGame() {
+        // 1. 準備 (今の状態はステージ3で時間も経過してる設定)
+        String userId = "user-123";
+        GameProgress progress = new GameProgress();
+        progress.setUserId(userId);
+        progress.setCurrentStageId(3);
+        progress.setTotalElapsedSeconds(120L);
+
+        when(gameProgressRepository.findById(userId)).thenReturn(Optional.of(progress));
+
+        // 2. 実行
+        gameService.resetGame(userId);
+
+        // 3. 検証
+        assertEquals(1, progress.getCurrentStageId(), "ステージが1に戻っていること");
+        assertEquals(0L, progress.getTotalElapsedSeconds(), "タイムが0にリセットされていること");
+        
+        // ちゃんと保存（save）が呼ばれたかチェック
+        verify(gameProgressRepository, times(1)).save(progress);
     }
 }
