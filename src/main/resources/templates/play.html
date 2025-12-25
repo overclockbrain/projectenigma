@@ -24,56 +24,30 @@
             <h1>Stage <span th:text="${progress.currentStageId}">1</span></h1>
             
             <div class="riddle-box">
-                <p class="mission-text" th:text="${riddle.hint}">Mission: ...</p>
-                <div class="moving-target-container">
-                    <div class="moving-text" th:text="'KEY: ' + ${riddle.answer.toUpperCase()}">KEY: ???</div>
-                </div>
+                <div th:replace="~{'fragments/stage' + ${progress.currentStageId} :: riddle-content}"></div>
             </div>
 
             <form th:action="@{/play/answer}" th:object="${answerForm}" method="post" class="answer-form">
-                <input type="text" th:field="*{answer}" class="answer-input" 
-                       placeholder="Enter Answer..." required autofocus autocomplete="off">
-                <button type="submit" class="btn btn-answer">Answer</button>
+                <input type="hidden" id="answer-input" th:field="*{answer}">
+                <button id="submit-btn" class="btn btn-answer">
+                    ANSWER
+                </button>
             </form>
-        </div>
 
-
-        <div th:if="${riddle == null}" class="clear-screen">
-            <h1 class="clear-title">MISSION COMPLETE</h1>
-            
-            <p class="clear-sub-text">Congratulations!</p>
-            <p>You have deciphered all codes.</p>
-            
-            <div class="score-board">
-                <p>User: <span th:text="${user.id}">ID</span></p>
-                <p>Total Time: <span class="score-value" th:text="${progress.totalElapsedSeconds}">0</span> seconds</p>
-            </div>
-
-            <div class="btn-group">
-                <form th:action="@{/play/restart}" method="post">
-                    <button type="submit" class="btn btn-replay">
-                        ↻ Replay Mission
-                    </button>
-                </form>
-
-                <a th:href="@{/}" class="sub-link">Return to Top</a>
-            </div>
-        </div>
-
-        <div class="game-footer">
+            <div class="game-footer">
                 <a th:href="@{/}" class="footer-home">↩ home</a>
-
                 <div class="footer-center">
                     <details class="hint-box">
-                        <summary class="hint-icon">💡</summary>
+                        <summary class="hint-icon">？</summary>
                         <div class="hint-content">
                             <span th:text="${riddle.hint}">Hint Text</span>
                         </div>
                     </details>
                 </div>
-                <div class="footer-right"></div>
             </div>
         </div>
+
+        <div th:replace="~{fragments/complete :: complete-content}"></div>
     </div>
 
 </body>

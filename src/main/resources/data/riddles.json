@@ -1,12 +1,17 @@
 [
     {
         "stageId": 1,
-        "answer": "flash",
-        "hint": "Mission: Catch the high-speed code!"
+        "answer": "5050",
+        "hint": "Mission: The scale is tipped. Restore the equilibrium to find the key."
     },
     {
         "stageId": 2,
-        "answer": "sky",
-        "hint": "Look up above."
+        "answer": "NONE",
+        "hint": "Four figures stand before you. The mission is simple: 'Find the one that is not human.'"
+    },
+    {
+        "stageId": 3,
+        "answer": "HOME",
+        "hint": "A leak in the wall threatens everything. The plug you need is fixed in size and lies right beneath your feet."
     }
 ]

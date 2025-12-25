@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="complete-content">
+        <div th:if="${riddle == null}" class="clear-screen">
+            <h1 class="clear-title">MISSION COMPLETE</h1>
+            
+            <p class="clear-sub-text">Congratulations!</p>
+            <p>You have deciphered all codes.</p>
+            
+            <div class="score-board">
+                <p>User: <span th:text="${user.id}">ID</span></p>
+                <p>Total Time: <span class="score-value" th:text="${progress.totalElapsedSeconds}">0</span> seconds</p>
+            </div>
+
+            <div class="btn-group">
+                <form th:action="@{/play/restart}" method="post">
+                    <button type="submit" class="btn btn-replay">
+                        ↻ Replay Mission
+                    </button>
+                </form>
+
+                <a th:href="@{/}" class="sub-link">Return to Top</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
