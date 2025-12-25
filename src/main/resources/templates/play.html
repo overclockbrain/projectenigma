@@ -60,6 +60,20 @@
             </div>
         </div>
 
+        <div class="game-footer">
+                <a th:href="@{/}" class="footer-home">↩ home</a>
+
+                <div class="footer-center">
+                    <details class="hint-box">
+                        <summary class="hint-icon">💡</summary>
+                        <div class="hint-content">
+                            <span th:text="${riddle.hint}">Hint Text</span>
+                        </div>
+                    </details>
+                </div>
+                <div class="footer-right"></div>
+            </div>
+        </div>
     </div>
 
 </body>

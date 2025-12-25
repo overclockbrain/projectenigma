@@ -4,7 +4,7 @@
  * ゲーム固有のギミックや動的なアニメーション設定もここに含む。
  *
  * @author R.Morioka
- * @version 1.2 (play.htmlのスタイルを統合)
+ * @version 1.4 (play.htmlのスタイルを統合)
  * @since 1.0
  */
 
@@ -58,8 +58,12 @@ h1 {
 .btn-group {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 2rem;
+    align-items: center;      /* 横方向の真ん中 */
+    justify-content: center;  /* ★追加: 縦方向の真ん中 */
+    gap: 1.5rem;              /* ★変更: ボタン同士の間隔を少し広げてバランス良く */
+    
+    /* ★追加: ボタンが1個でも2個でも、この高さは確保する！ */
+    min-height: 180px;
 }
 
 a.btn {
@@ -267,4 +271,93 @@ a.btn:hover {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==============================================
+ * ゲームのフッター
+ * ============================================== */
+/* === ゲームフッター === */
+.game-footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 左: ホームリンク */
+.footer-home {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: color 0.2s;
+    /* 左側の余白確保 */
+    padding-left: 10px;
+}
+.footer-home:hover {
+    color: #555;
+}
+
+/* 中央エリア（ここを右寄せに変更！） */
+.footer-center {
+    flex-grow: 1;
+    text-align: right; /* ★右寄せにする */
+    padding-right: 20px; /* ★右端から少し離す */
+}
+
+/* ヒントの入れ物（吹き出しの基準位置にする） */
+.hint-box {
+    display: inline-block; /* ★アイコンサイズに合わせる */
+    position: relative;    /* ★吹き出しの親基準にする */
+}
+
+.hint-icon {
+    list-style: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: transform 0.2s;
+}
+.hint-icon:hover {
+    transform: scale(1.2);
+}
+.hint-icon::-webkit-details-marker {
+    display: none;
+}
+
+/* ヒントの吹き出し */
+.hint-content {
+    position: absolute;
+    bottom: 120%; /* アイコンの少し上 */
+    right: 0;     /* ★アイコンの右端に合わせる */
+    /* もし真ん中にしたいなら right:0 を消して↓これを使う
+       left: 50%;
+       transform: translateX(-50%);
+    */
+    
+    background-color: #333;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    
+    /* ふわっと出すアニメーション */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease-in-out;
+    transform: translateY(10px);
+}
+
+/* detailsが開いている時だけ表示 */
+details[open] .hint-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* 右: ダミー（もう不要なら消してもええけど、念のため幅0にしとく） */
+.footer-right {
+    width: 0;
 }
