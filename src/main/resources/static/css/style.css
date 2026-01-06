@@ -607,3 +607,127 @@ details[open] .hint-content {
 .animate-pop {
     animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
+
+/* ================================================
+ * Stage 2: 人狼パズル
+ * ================================================ */
+.stage2-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.riddle-title {
+    color: #333;
+    margin-bottom: 5px;
+}
+.riddle-desc {
+    color: #666;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+}
+
+/* 容疑者ラッパー */
+.suspects-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 600px;
+}
+
+/* 容疑者カード */
+.suspect {
+    position: relative;
+    background: #fff;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    width: 120px;
+    padding: 15px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+/* ホバー時 */
+.suspect:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: #aaa;
+}
+
+/* 選択された時 (JSでつけるクラス) */
+.suspect.selected {
+    border-color: #e53935; /* 赤色でロックオン！ */
+    background-color: #ffebee;
+    box-shadow: 0 0 0 4px rgba(229, 57, 53, 0.2);
+}
+
+/* アイコン */
+.suspect-icon {
+    font-size: 3rem;
+    margin: 10px 0;
+}
+.suspect-name {
+    font-weight: bold;
+    color: #444;
+}
+
+/* 吹き出し（証言） */
+.speech-bubble {
+    position: absolute;
+    bottom: 100%; /* カードの上に配置 */
+    left: 50%;
+    transform: translateX(-50%);
+    
+    background: #333;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    width: 140px;
+    margin-bottom: 10px;
+    
+    /* 吹き出しの三角 */
+    opacity: 0; /* 最初は隠す？それとも常時表示？一旦ホバーか選択で出す？ */
+    visibility: hidden;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* 吹き出しの尻尾 */
+.speech-bubble::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -6px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+/* 常時表示にするか、ホバーで出すか */
+/* 今回はパズルなので、常に見えてた方が考えやすいから常時表示にするわ！ */
+.speech-bubble {
+    opacity: 1;
+    visibility: visible;
+    position: relative; /* カードの中に組み込む形に変更 */
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin-bottom: 5px;
+    width: 100%;
+    background: #f5f5f5;
+    color: #333;
+    border: 1px solid #ccc;
+}
+.speech-bubble::after {
+    /* 吹き出しの尻尾を下向きに */
+    border-color: #ccc transparent transparent transparent;
+    top: 100%;
+}
