@@ -4,37 +4,38 @@
     <div th:fragment="riddle-content" class="stage2-container">
         <script th:src="@{/js/stage2.js}"></script>
 
-        <h2 class="riddle-title">Who is the Werewolf?</h2>
-        <p class="riddle-desc">一匹の人狼が嘘をついている。人狼を見つけ出せ。</p>
+        <h2 class="riddle-title" th:text="#{stage2.title}">Who is the Werewolf?</h2>
+        <p class="riddle-desc" th:text="#{stage2.desc}">Description...</p>
 
         <div class="suspects-wrapper">
             <div class="suspect" data-id="A">
-                <div class="speech-bubble">「私は人狼じゃない」</div>
+                <div class="speech-bubble" th:text="#{stage2.quote.a}">Quote A</div>
                 <div class="suspect-icon">👱‍♂️</div>
-                <div class="suspect-name">Villager A</div>
+                <div class="suspect-name" th:text="#{stage2.suspect.a}">Villager A</div>
             </div>
 
             <div class="suspect" data-id="B">
-                <div class="speech-bubble">「Cが人狼だ」</div>
+                <div class="speech-bubble" th:text="#{stage2.quote.b}">Quote B</div>
                 <div class="suspect-icon">👩‍🦰</div>
-                <div class="suspect-name">Villager B</div>
+                <div class="suspect-name" th:text="#{stage2.suspect.b}">Villager B</div>
             </div>
 
             <div class="suspect" data-id="C">
-                <div class="speech-bubble">「Dは人狼じゃない」</div>
+                <div class="speech-bubble" th:text="#{stage2.quote.c}">Quote C</div>
                 <div class="suspect-icon">👴</div>
-                <div class="suspect-name">Villager C</div>
+                <div class="suspect-name" th:text="#{stage2.suspect.c}">Villager C</div>
             </div>
 
             <div class="suspect" data-id="D">
-                <div class="speech-bubble">「Bが嘘をついてる」</div>
+                <div class="speech-bubble" th:text="#{stage2.quote.d}">Quote D</div>
                 <div class="suspect-icon">👦</div>
-                <div class="suspect-name">Villager D</div>
+                <div class="suspect-name" th:text="#{stage2.suspect.d}">Villager D</div>
             </div>
         </div>
 
-        <p id="selection-display" style="margin-top: 1rem; color: #888; height: 1.5rem;">
-            Select a suspect...
+        <p id="selection-display"
+            th:text="#{stage2.select}"
+            th:data-pattern="#{stage2.you_suspect}"> Select a suspect...
         </p>
     </div>
 </body>

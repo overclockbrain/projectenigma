@@ -1,15 +1,30 @@
+/**
+ * Stage 1: Balance Scale Logic
+ * 天秤のシミュレーションとドラッグ＆ドロップ制御を行う。
+ * @author R.Morioka
+ * @version 1.1 (マジックナンバー排除・Fix版)
+ */
 document.addEventListener("DOMContentLoaded", function () {
+    // === 🔧 CONFIG (設定値) ===
+    const CONFIG = {
+        MAX_ANGLE: 45,          // 天秤の最大傾き（度）
+        SENSITIVITY: 0.5,       // 重さの差に対する傾きの感度
+        TARGET_WEIGHT: 50,      // 目標とする片側の重さ
+        ANIMATION_SPEED: 0.3,   // アニメーション秒数
+    };
+
     const scaleArm = document.getElementById("scale-arm");
-    const dropZones = document.querySelectorAll(".drop-zone"); // 皿と置き場
-    const items = document.querySelectorAll(".draggable-item[draggable='true']"); // 動かせるやつだけ
+    const dropZones = document.querySelectorAll(".drop-zone");
+    const items = document.querySelectorAll(".draggable-item[draggable='true']");
+    const answerInput = document.getElementById("answer-input");
+    const submitBtn = document.getElementById("submit-btn");
 
     // 要素が足りない場合は実行しない
     if (!scaleArm) return;
 
-    // グローバル変数を使わずに、現在ドラッグ中のアイテムを保持
     let currentDraggedItem = null;
 
-    // 1. ドラッグ開始イベント設定
+    // === 1. ドラッグ開始イベント設定 ===
     items.forEach(item => {
         item.addEventListener("dragstart", function (e) {
             currentDraggedItem = this;
@@ -24,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // 2. ドロップゾーン（皿・置き場）イベント設定
+    // === 2. ドロップゾーン（皿・置き場）イベント設定 ===
     dropZones.forEach(zone => {
         zone.addEventListener("dragover", function (e) {
             e.preventDefault(); // これがないとdropできない
@@ -44,10 +59,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // 初期状態でも一度計算する
-    updateScale();
-
-    // 天秤の角度計算関数
+    /**
+     * 天秤の状態を更新する関数
+     */
     function updateScale() {
         const panLeft = document.getElementById("pan-left");
         const panRight = document.getElementById("pan-right");
@@ -55,17 +69,19 @@ document.addEventListener("DOMContentLoaded", function () {
         const weightLeft = calculateTotalWeight(panLeft);
         const weightRight = calculateTotalWeight(panRight);
 
-        // 左が重いとマイナス(左下がり)、右が重いとプラス(右下がり)
+        // 左が重いとマイナス、右が重いとプラス
         const diff = weightRight - weightLeft;
 
-        // 角度リミッター（±45度まで）
-        // 差が100あると45度傾くくらいの感度
-        let angle = diff * 0.5;
-        if (angle > 45) angle = 45;
-        if (angle < -45) angle = -45;
+        // ★ マジックナンバー排除！ CONFIGを使う
+        let angle = diff * CONFIG.SENSITIVITY;
+
+        // 角度リミッター
+        if (angle > CONFIG.MAX_ANGLE) angle = CONFIG.MAX_ANGLE;
+        if (angle < -CONFIG.MAX_ANGLE) angle = -CONFIG.MAX_ANGLE;
 
         // アニメーション適用
         scaleArm.style.transform = `rotate(${angle}deg)`;
+        scaleArm.style.transition = `transform ${CONFIG.ANIMATION_SPEED}s ease-out`;
 
         // クリア判定
         checkClear(weightLeft, weightRight);
@@ -83,23 +99,20 @@ document.addEventListener("DOMContentLoaded", function () {
         return total;
     }
 
-    // 正解判定（デバッグ機能付き）
+    /**
+     * 判定ロジック修正版
+     * 正誤に関わらず常に値をセットし、ボタンを押せるようにする
+     */
     function checkClear(left, right) {
-        const answerInput = document.getElementById("answer-input");
-        const submitBtn = document.getElementById("submit-btn");
+        // ボタンが存在しない場合は何もしない
+        if (!submitBtn) return;
 
-        // ボタン要素が見つからない場合はエラーを出す
-        if (!submitBtn) {
-            return;
-        }
-
-        // 判定ロジック: 両方に物が乗ってて、重さが同じならOK
-        if (left > 0 && right > 0 && left === right) {
-            // 1. 答えをセット
-            if (answerInput) answerInput.value = "5050";
-        } else {
-            // 条件を満たさない時は隠す
-            if (answerInput) answerInput.value = "";
+        // これでサーバーに "3020" とか "00" が送られて、向こうで判定してもらえる
+        if (answerInput) {
+            answerInput.value = `${left}${right}`;
         }
     }
+
+    // 初期状態の更新
+    updateScale();
 });

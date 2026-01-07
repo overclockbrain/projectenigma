@@ -3,24 +3,28 @@
 <body>
     <div th:fragment="complete-content">
         <div th:if="${riddle == null}" class="clear-screen">
-            <h1 class="clear-title">MISSION COMPLETE</h1>
+            <h1 class="clear-title" th:text="#{complete.title}">MISSION COMPLETE</h1>
             
-            <p class="clear-sub-text">Congratulations!</p>
-            <p>You have deciphered all codes.</p>
+            <p class="clear-sub-text" th:text="#{complete.subtitle}">Congratulations!</p>
+            <p th:text="#{complete.desc}">You have deciphered all codes.</p>
             
             <div class="score-board">
-                <p>User: <span th:text="${user.id}">ID</span></p>
-                <p>Total Time: <span class="score-value" th:text="${progress.totalElapsedSeconds}">0</span> seconds</p>
+                <p><span th:text="#{complete.score.user}">User</span>: <span th:text="${user.id}">ID</span></p>
+                <p>
+                    <span th:text="#{complete.score.time}">Total Time</span>: 
+                    <span class="score-value" th:text="${progress?.totalElapsedSeconds}">0</span> 
+                    <span th:text="#{complete.unit.seconds}">seconds</span>
+                </p>
             </div>
 
             <div class="btn-group">
                 <form th:action="@{/play/restart}" method="post">
-                    <button type="submit" class="btn btn-replay">
+                    <button type="submit" class="btn btn-replay" th:text="#{btn.replay}">
                         ↻ Replay Mission
                     </button>
                 </form>
 
-                <a th:href="@{/}" class="sub-link">Return to Top</a>
+                <a th:href="@{/}" class="sub-link" th:text="#{link.top}">Return to Top</a>
             </div>
         </div>
     </div>

@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * ゲームの進行管理や正誤判定を行うサービス。
+ * ゲームの進行管理や正誤判定を行うサービスクラス。
  * ユーザーの解答をDBのマスタデータと照合し、ステージ進行を制御する。
  *
  * @author R.Morioka
- * @version 1.2 (restart対応)
+ * @version 1.3 (リポジトリ隠蔽対応)
  * @since 1.0
  */
 @Service
@@ -22,6 +22,32 @@ public class GameService {
 
     private final GameProgressRepository gameProgressRepository;
     private final RiddleRepository riddleRepository;
+
+    /**
+     * 指定されたユーザーの現在のゲーム進捗状況を取得する。
+     *
+     * @param userId ユーザーID
+     * @return ユーザーのゲーム進捗情報
+     * @throws IllegalStateException ユーザーが存在しない場合
+     */
+    @Transactional(readOnly = true)
+    public GameProgress getProgress(String userId) {
+        return gameProgressRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User not found with ID: " + userId));
+    }
+
+    /**
+     * 指定されたユーザーの現在挑戦中の問題データを取得する。
+     *
+     * @param userId ユーザーID
+     * @return 現在のステージの問題データ。存在しない場合（クリア後など）はnull
+     */
+    @Transactional(readOnly = true)
+    public Riddle getCurrentRiddle(String userId) {
+        GameProgress progress = getProgress(userId);
+        return riddleRepository.findById(progress.getCurrentStageId())
+                .orElse(null);
+    }
 
     /**
      * ユーザーの解答をチェックし、正解ならステージを進める。
@@ -33,26 +59,19 @@ public class GameService {
      */
     @Transactional
     public boolean checkAnswer(String userId, String answer) {
-        // ユーザーの進捗を取得
-        GameProgress progress = gameProgressRepository.findById(userId)
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-
+        GameProgress progress = getProgress(userId);
         int currentStage = progress.getCurrentStageId();
-        
-        // DBからそのステージの正解を取得
+
         String correctAnswer = riddleRepository.findById(currentStage)
                 .map(Riddle::getAnswer)
                 .orElse(null);
 
-        // 問題データがない場合は不正解扱い
         if (correctAnswer == null) {
             return false;
         }
 
-        // 大文字小文字を無視して比較
         boolean isCorrect = correctAnswer.equalsIgnoreCase(answer.trim());
 
-        // 正解なら次のステージへ進める
         if (isCorrect) {
             progress.setCurrentStageId(currentStage + 1);
             gameProgressRepository.save(progress);
@@ -63,17 +82,15 @@ public class GameService {
 
     /**
      * ユーザーの進捗を初期化（リスタート）する。
+     * ステージを1に戻し、経過時間をリセットする。
+     *
      * @param userId ユーザーID
      */
     @Transactional
     public void resetGame(String userId) {
-        GameProgress progress = gameProgressRepository.findById(userId)
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-
-        progress.setCurrentStageId(1); // ステージ1へ
-        progress.setTotalElapsedSeconds(0L); // タイムリセット
-        // ※必要ならここでスコアのリセットなども行う
-
+        GameProgress progress = getProgress(userId);
+        progress.setCurrentStageId(1);
+        progress.setTotalElapsedSeconds(0L);
         gameProgressRepository.save(progress);
     }
 }

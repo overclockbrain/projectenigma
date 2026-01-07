@@ -12,8 +12,8 @@
         
         <div th:if="${riddle != null}">
             <div class="game-header">
-                <h3>User: <span th:text="${user.id.substring(0,8)}">ID</span>...</h3>
-                <p class="timer">Time: <span id="timer-val" th:text="${progress.totalElapsedSeconds}">0</span>s</p>
+                <h3><span th:text="#{label.user}">User</span>: <span th:text="${user.id.substring(0,8)}">ID</span>...</h3>
+                <p class="timer"><span th:text="#{label.time}">Time</span>: <span id="timer-val" th:text="${progress?.totalElapsedSeconds}">0</span>s</p>
             </div>
             <hr>
 
@@ -21,7 +21,7 @@
                 <span th:text="${message}">Message</span>
             </div>
 
-            <h1>Stage <span th:text="${progress.currentStageId}">1</span></h1>
+            <h1><span th:text="#{label.stage}">Stage</span> <span th:text="${progress.currentStageId}">1</span></h1>
             
             <div class="riddle-box">
                 <div th:replace="~{'fragments/stage' + ${progress.currentStageId} :: riddle-content}"></div>
@@ -29,16 +29,16 @@
 
             <form th:action="@{/play/answer}" th:object="${answerForm}" method="post" class="answer-form">
                 <input type="hidden" id="answer-input" th:field="*{answer}">
-                <button id="submit-btn" class="btn btn-answer">
+                <button id="submit-btn" class="btn btn-answer" th:text="#{btn.answer}">
                     ANSWER
                 </button>
             </form>
 
             <div class="game-footer">
-                <a th:href="@{/}" class="footer-home">↩ home</a>
+                <a th:href="@{/}" class="footer-home" th:text="#{label.home}">↩ home</a>
                 <div class="footer-center">
                     <details class="hint-box">
-                        <summary class="hint-icon">？</summary>
+                        <summary class="hint-icon" th:text="#{label.hint}">Hint</summary>
                         <div class="hint-content">
                             <span th:text="${riddle.hint}">Hint Text</span>
                         </div>

@@ -2,11 +2,13 @@ package com.example.projectenigma.cipher.controller;
 
 import com.example.projectenigma.cipher.constant.PathConst;
 import com.example.projectenigma.cipher.entity.GameProgress;
+import com.example.projectenigma.cipher.entity.Riddle;
 import com.example.projectenigma.cipher.entity.User;
 import com.example.projectenigma.cipher.repository.GameProgressRepository;
-import com.example.projectenigma.cipher.repository.RiddleRepository;
 import com.example.projectenigma.cipher.service.AuthService;
 import com.example.projectenigma.cipher.service.GameService;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * コントローラーの挙動（画面遷移、モデルの受け渡し、リダイレクト等）を検証する。
  *
  * @author R.Morioka
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 @WebMvcTest(GameController.class)
@@ -53,8 +55,29 @@ public class GameControllerTest {
     @MockitoBean
     private GameService gameService;
 
-    @MockitoBean
-    private RiddleRepository riddleRepository;
+    // テストで使う共通のダミーデータ
+    private User mockUser;
+    private GameProgress mockProgress;
+    private Riddle mockRiddle;
+
+    @BeforeEach
+    void setUp() {
+        // 1. ダミーデータの作成
+        mockUser = new User();
+        mockUser.setId("test-user");
+
+        mockProgress = new GameProgress();
+        mockProgress.setUserId("test-user");
+        mockProgress.setCurrentStageId(1);
+        mockProgress.setTotalElapsedSeconds(0L); // ★これがnullやと死ぬ
+
+        mockRiddle = new Riddle(1, "apple", "hint");
+
+        // 2. 基本的なモックの挙動をセット（これをやらないとnullが返ってエラーになる）
+        when(authService.authOrCreateUser(any(), any())).thenReturn(mockUser);
+        when(gameService.getProgress(any())).thenReturn(mockProgress);
+        when(gameService.getCurrentRiddle(any())).thenReturn(mockRiddle);
+    }
 
     /**
      * GET /play の正常系テスト。
@@ -102,9 +125,9 @@ public class GameControllerTest {
 
         // 2. 実行と検証 (When & Then)
         mockMvc.perform(post("/play/answer")
-                        .param("answer", "apple")
-                        // .with(csrf()) // CSRF対策トークン（Security導入時用）
-            )
+                .param("answer", "apple")
+        // .with(csrf()) // CSRF対策トークン（Security導入時用）
+        )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/play"))
                 .andExpect(flash().attribute("alertClass", "success"));
@@ -128,9 +151,9 @@ public class GameControllerTest {
 
         // 2. 実行と検証 (When & Then)
         mockMvc.perform(post("/play/answer")
-                        .param("answer", "wrong_answer")
-                        // .with(csrf())
-                )
+                .param("answer", "wrong_answer")
+        // .with(csrf())
+        )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/play"))
                 .andExpect(flash().attribute("alertClass", "error"));
@@ -152,14 +175,14 @@ public class GameControllerTest {
         String userId = "test-user-id";
         User mockUser = new User();
         mockUser.setId(userId);
-        
+
         // authServiceがユーザーを返すようにモック
         when(authService.authOrCreateUser(any(), any())).thenReturn(mockUser);
 
         // 2. 実行 & 検証
         mockMvc.perform(post("/play" + PathConst.RESTART) // /play/restart
-                        // .with(csrf()) // セキュリティ入れたらコメントアウト外す
-                )
+        // .with(csrf()) // セキュリティ入れたらコメントアウト外す
+        )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/play")); // リダイレクト先確認
 
