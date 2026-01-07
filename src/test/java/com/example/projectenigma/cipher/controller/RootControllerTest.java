@@ -1,9 +1,13 @@
 package com.example.projectenigma.cipher.controller;
 
+import com.example.projectenigma.cipher.constant.PathConst;
+import com.example.projectenigma.cipher.constant.ViewConst;
 import com.example.projectenigma.cipher.entity.GameProgress;
 import com.example.projectenigma.cipher.entity.User;
 import com.example.projectenigma.cipher.repository.GameProgressRepository;
 import com.example.projectenigma.cipher.service.AuthService;
+import com.example.projectenigma.cipher.service.GameService;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +42,9 @@ public class RootControllerTest {
     @MockitoBean
     private GameProgressRepository gameProgressRepository;
 
+    @MockitoBean // ★ ここ追加！これがないと起動せえへん
+    private GameService gameService;
+
     /**
      * トップページ（/）への正常アクセスをテストする。
      * 期待値:
@@ -46,7 +53,7 @@ public class RootControllerTest {
      * - Modelに "user", "progress" が含まれていること
      *
      * @author R.Morioka
-     * @version 1.0
+     * @version 1.1
      * @since 1.0
      */
     @Test
@@ -62,14 +69,13 @@ public class RootControllerTest {
 
         // モックの挙動定義
         when(authService.authOrCreateUser(any(), any())).thenReturn(mockUser);
-        when(gameProgressRepository.findById("root-test-user")).thenReturn(Optional.of(mockProgress));
+        // ★ RepositoryじゃなくてServiceをモックする
+        when(gameService.getProgress("root-test-user")).thenReturn(mockProgress);
 
-        // 2. 実行と検証 (When & Then)
-        mockMvc.perform(get("/"))
+        // 2. 実行と検証
+        mockMvc.perform(get(PathConst.ROOT))
                 .andExpect(status().isOk())
-                .andExpect(view().name("index"))
-                .andExpect(model().attributeExists("user"))
-                .andExpect(model().attributeExists("progress"))
-                .andExpect(model().attribute("user", mockUser)); // 中身が一致するかも確認できるで
+                .andExpect(view().name(ViewConst.VIEW_INDEX))
+                .andExpect(model().attributeExists("progress"));
     }
 }

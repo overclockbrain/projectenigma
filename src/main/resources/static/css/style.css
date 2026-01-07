@@ -731,3 +731,15 @@ details[open] .hint-content {
     border-color: #ccc transparent transparent transparent;
     top: 100%;
 }
+
+/* 人狼ゲーム: 容疑者を選択した時のメッセージスタイル */
+#selection-display {
+    margin-top: 1rem;
+    color: #888;
+    height: 1.5rem;
+}
+
+.selection-active {
+    color: #e53935;
+    font-weight: bold;
+}

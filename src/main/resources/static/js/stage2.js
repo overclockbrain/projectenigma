@@ -17,14 +17,21 @@ document.addEventListener("DOMContentLoaded", function () {
             // 4. 隠しフォームに値をセット
             if (answerInput) {
                 answerInput.value = suspectId;
-                console.log("Selected suspect:", suspectId);
             }
 
             // 5. 画面表示更新
             if (selectionDisplay) {
-                selectionDisplay.textContent = `You suspect: ${suspectId}`;
-                selectionDisplay.style.color = "#e53935";
-                selectionDisplay.style.fontWeight = "bold";
+                // データ属性から翻訳パターンを取得 (th:data-pattern="#{stage2.you_suspect}")
+                const pattern = selectionDisplay.getAttribute("data-pattern");
+
+                if (pattern) {
+                    selectionDisplay.textContent = pattern.replace("{0}", suspectId);
+                } else {
+                    selectionDisplay.textContent = suspectId;
+                }
+
+                // ★ここ修正！ 直接 style を触らず、CSSクラスを付与する
+                selectionDisplay.classList.add("selection-active");
             }
         });
     });
