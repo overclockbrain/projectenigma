@@ -5,32 +5,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
     suspects.forEach(suspect => {
         suspect.addEventListener("click", function () {
-            // 1. 他の選択を解除
-            suspects.forEach(s => s.classList.remove("selected"));
+            // 1. 全員の顔を「元の顔」に戻す
+            suspects.forEach(s => {
+                s.classList.remove("selected");
+                const icon = s.querySelector(".suspect-icon");
+                if (icon && icon.dataset.originalFace) {
+                    icon.textContent = icon.dataset.originalFace;
+                }
+            });
 
-            // 2. 自分を選択
+            // 2. 自分を選択状態にする
             this.classList.add("selected");
 
-            // 3. データを取得
-            const suspectId = this.getAttribute("data-id");
+            // 3. 自分の顔を「狼」に変える！
+            const myIcon = this.querySelector(".suspect-icon");
+            if (myIcon) {
+                myIcon.textContent = "🐺";
+            }
 
-            // 4. 隠しフォームに値をセット
+            // 4. IDを取得してフォームにセット
+            const suspectId = this.getAttribute("data-id");
             if (answerInput) {
                 answerInput.value = suspectId;
             }
 
-            // 5. 画面表示更新
+            // 5. 画面下の表示更新
             if (selectionDisplay) {
-                // データ属性から翻訳パターンを取得 (th:data-pattern="#{stage2.you_suspect}")
                 const pattern = selectionDisplay.getAttribute("data-pattern");
-
                 if (pattern) {
                     selectionDisplay.textContent = pattern.replace("{0}", suspectId);
                 } else {
                     selectionDisplay.textContent = suspectId;
                 }
-
-                // ★ここ修正！ 直接 style を触らず、CSSクラスを付与する
                 selectionDisplay.classList.add("selection-active");
             }
         });
