@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="riddle-content" class="stage3-container">
+        <script th:src="@{/js/stage3.js}"></script>
+
+        <h2 class="riddle-title" th:text="#{stage3.title}">Fix the Leak</h2>
+        <p class="riddle-desc" th:text="#{stage3.desc}">Stop the leaks completely.</p>
+
+        <div class="solid-part" draggable="true" data-type="solid"></div>
+
+        <div class="wall-container">
+            <div class="leak-hole" data-shape="circle">
+                <div class="falling-water large"></div>
+                <div class="falling-water small"></div>
+            </div>
+        </div>
+
+        <div class="river-water"></div>
+
+    </div>
+</body>
+</html>
