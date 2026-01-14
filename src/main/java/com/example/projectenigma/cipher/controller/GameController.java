@@ -106,7 +106,7 @@ public class GameController {
 
         User user = authService.authOrCreateUser(request, response);
 
-        boolean isCorrect = gameService.checkAnswer(user.getId(), answerForm.getAnswer());
+        boolean isCorrect = gameService.checkAnswer(user.getId(), answerForm.getAnswer(), answerForm.getElapsedSeconds());
 
         if (isCorrect) {
             String msg = messageSource.getMessage("game.msg.correct", null, locale);
