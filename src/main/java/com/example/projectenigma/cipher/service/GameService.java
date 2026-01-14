@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
  * ユーザーの解答をDBのマスタデータと照合し、ステージ進行を制御する。
  *
  * @author R.Morioka
- * @version 1.3 (リポジトリ隠蔽対応)
+ * @version 1.4
  * @since 1.0
  */
 @Service
@@ -50,23 +50,32 @@ public class GameService {
     }
 
     /**
-     * ユーザーの解答をチェックし、正解ならステージを進める。
-     * 正解データはRiddleリポジトリから動的に取得する。
-     *
+     * ユーザーの解答をチェックし、正解ならステージを進め、経過時間を更新する。
+     * 
      * @param userId ユーザーID
-     * @param answer ユーザーが入力した解答
-     * @return 正解なら true, 不正解または問題データなしなら false
+     * @param answer ユーザーの解答
+     * @param elapsedSeconds クライアントから送られてきた現在の総経過時間（秒） // ★追加
+     * @return 正解なら true
      */
     @Transactional
-    public boolean checkAnswer(String userId, String answer) {
+    public boolean checkAnswer(String userId, String answer, Long elapsedSeconds) {
         GameProgress progress = getProgress(userId);
         int currentStage = progress.getCurrentStageId();
+
+        // ★ここで時間を更新！
+        // (nullチェックは念のため入れてるけど、基本はフロントから送られてくる前提)
+        if (elapsedSeconds != null) {
+            progress.setTotalElapsedSeconds(elapsedSeconds);
+        }
 
         String correctAnswer = riddleRepository.findById(currentStage)
                 .map(Riddle::getAnswer)
                 .orElse(null);
 
         if (correctAnswer == null) {
+            // 不正解でも時間は進んでるから保存してもええかもしれんけど、
+            // とりあえず今回は「進捗保存」としてここでsave呼んどくのが安全
+            gameProgressRepository.save(progress); 
             return false;
         }
 
@@ -74,8 +83,10 @@ public class GameService {
 
         if (isCorrect) {
             progress.setCurrentStageId(currentStage + 1);
-            gameProgressRepository.save(progress);
         }
+        
+        // 正解・不正解に関わらず、時間更新のためにsaveは必須
+        gameProgressRepository.save(progress);
 
         return isCorrect;
     }

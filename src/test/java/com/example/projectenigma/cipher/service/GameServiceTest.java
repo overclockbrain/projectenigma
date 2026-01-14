@@ -14,7 +14,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -22,7 +21,7 @@ import static org.mockito.Mockito.*;
  * RiddleRepositoryのモックを使用し、DBから正解を取得するフローを検証する。
  *
  * @author R.Morioka
- * @version 1.2
+ * @version 1.3
  * @since 1.0
  */
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +44,7 @@ class GameServiceTest {
      * - 進捗が保存される
      * 
      * @author R.Morioka
-     * @version 1.1
+     * @version 1.3 (時間引数追加)
      * @since 1.0
      */
     @Test
@@ -65,7 +64,8 @@ class GameServiceTest {
         when(riddleRepository.findById(1)).thenReturn(Optional.of(mockRiddle));
 
         // 2. 実行 (When)
-        boolean result = gameService.checkAnswer(userId, "flash");
+        // ★第3引数に時間を追加 (テストなので適当な値 100L でOK)
+        boolean result = gameService.checkAnswer(userId, "flash", 100L);
 
         // 3. 検証 (Then)
         assertTrue(result, "正解なのでtrueが返るはず");
@@ -78,7 +78,7 @@ class GameServiceTest {
      * - Riddleリポジトリから正解は返るが、入力と一致しない
      * 
      * @author R.Morioka
-     * @version 1.1
+     * @version 1.2 (時間引数追加)
      * @since 1.0
      */
     @Test
@@ -97,12 +97,16 @@ class GameServiceTest {
         when(riddleRepository.findById(1)).thenReturn(Optional.of(mockRiddle));
 
         // 2. 実行 (入力は "banana")
-        boolean result = gameService.checkAnswer(userId, "banana");
+        // ★第3引数に時間を追加
+        boolean result = gameService.checkAnswer(userId, "banana", 50L);
 
         // 3. 検証
         assertFalse(result);
         assertEquals(1, progress.getCurrentStageId());
-        verify(gameProgressRepository, never()).save(any());
+        // ★不正解でも時間更新のためにsaveは呼ばれるようになったので、never()から修正するか、あるいは「進捗が進んでないこと」だけを確認
+        // 今回の修正で「不正解でも時間を保存する」ロジックに変えたなら、save(progress)は呼ばれるのが正解や。
+        // なので、↓の行はコメントアウトするか、 verify(..., times(1)) に変えるべきやな。
+        verify(gameProgressRepository, times(1)).save(progress);
     }
 
     /**
@@ -110,7 +114,7 @@ class GameServiceTest {
      * - Riddleリポジトリが空を返すケース
      * 
      * @author R.Morioka
-     * @version 1.0
+     * @version 1.1 (時間引数追加)
      * @since 1.0
      */
     @Test
@@ -128,12 +132,14 @@ class GameServiceTest {
         when(riddleRepository.findById(1)).thenReturn(Optional.empty());
 
         // 2. 実行
-        boolean result = gameService.checkAnswer(userId, "anyanswer");
+        // ★第3引数に時間を追加
+        boolean result = gameService.checkAnswer(userId, "anyanswer", 50L);
 
         // 3. 検証
         assertFalse(result);
         assertEquals(1, progress.getCurrentStageId());
-        verify(gameProgressRepository, never()).save(any());
+        // ここも同様、時間保存のためにsaveが呼ばれる実装にするなら times(1) になる
+        verify(gameProgressRepository, times(1)).save(progress);
     }
 
     /**
@@ -165,5 +171,40 @@ class GameServiceTest {
         
         // ちゃんと保存（save）が呼ばれたかチェック
         verify(gameProgressRepository, times(1)).save(progress);
+    }
+
+    /**
+     * 正解時に経過時間が更新されることを確認するテスト。
+     * - 正解した場合、ステージが進むとともに経過時間も更新される
+     * 
+     * @author R.Morioka
+     * @version 1.0
+     * @since 1.2
+     */
+    @Test
+    @DisplayName("正解時: ステージが進み、かつ経過時間(elapsedSeconds)がDBに保存されること")
+    void testCheckAnswer_Correct_UpdatesTime() {
+        // Given
+        String userId = "user1";
+        GameProgress progress = new GameProgress();
+        progress.setUserId(userId);
+        progress.setCurrentStageId(1);
+        progress.setTotalElapsedSeconds(10L); // 元々は10秒
+
+        Riddle riddle = new Riddle(1, "apple", "hint");
+
+        when(gameProgressRepository.findById(userId)).thenReturn(Optional.of(progress));
+        when(riddleRepository.findById(1)).thenReturn(Optional.of(riddle));
+
+        // When
+        // ★第3引数に「新しい経過時間 (120秒)」を渡す
+        boolean result = gameService.checkAnswer(userId, "Apple", 120L);
+
+        // Then
+        assertTrue(result);
+        assertEquals(2, progress.getCurrentStageId());
+        assertEquals(120L, progress.getTotalElapsedSeconds(), "時間が更新されていること");
+        
+        verify(gameProgressRepository).save(progress);
     }
 }

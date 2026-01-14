@@ -6,10 +6,11 @@ import lombok.Data;
  * ユーザーの解答を受け取るフォームDTO。
  * 
  * @author R.Morioka
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 @Data
 public class AnswerForm {
     private String answer;
+    private Long elapsedSeconds;
 }

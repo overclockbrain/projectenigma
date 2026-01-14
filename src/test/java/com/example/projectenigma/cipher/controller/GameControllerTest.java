@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean; // ★ここが変更点
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * コントローラーの挙動（画面遷移、モデルの受け渡し、リダイレクト等）を検証する。
  *
  * @author R.Morioka
- * @version 1.1
+ * @version 1.3 (MockitoBean対応 & 時間保存対応)
  * @since 1.0
  */
 @WebMvcTest(GameController.class)
@@ -49,15 +49,15 @@ public class GameControllerTest {
     private MockMvc mockMvc;
 
     /** 認証サービスのモック */
-    @MockitoBean
+    @MockitoBean // ★変更
     private AuthService authService;
 
     /** 進捗リポジトリのモック */
-    @MockitoBean
+    @MockitoBean // ★変更
     private GameProgressRepository gameProgressRepository;
 
     /** ゲームロジックサービスのモック */
-    @MockitoBean
+    @MockitoBean // ★変更
     private GameService gameService;
 
     // テストで使う共通のダミーデータ
@@ -74,11 +74,11 @@ public class GameControllerTest {
         mockProgress = new GameProgress();
         mockProgress.setUserId("test-user");
         mockProgress.setCurrentStageId(1);
-        mockProgress.setTotalElapsedSeconds(0L); // ★これがnullやと死ぬ
+        mockProgress.setTotalElapsedSeconds(0L); 
 
         mockRiddle = new Riddle(1, "apple", "hint");
 
-        // 2. 基本的なモックの挙動をセット（これをやらないとnullが返ってエラーになる）
+        // 2. 基本的なモックの挙動をセット
         when(authService.authOrCreateUser(any(), any())).thenReturn(mockUser);
         when(gameService.getProgress(any())).thenReturn(mockProgress);
         when(gameService.getCurrentRiddle(any())).thenReturn(mockRiddle);
@@ -88,6 +88,10 @@ public class GameControllerTest {
      * GET /play の正常系テスト。
      * ユーザーと進捗が存在する場合、ゲーム画面が正しく表示され、
      * 必要なオブジェクト（user, progress, answerForm）がModelに格納されていることを確認する。
+     * 
+     * @author R.Morioka
+     * @version 1.0
+     * @since 1.0
      */
     @Test
     @DisplayName("GET /play: 正常系 - 画面が表示され、フォームが渡される")
@@ -108,7 +112,6 @@ public class GameControllerTest {
                 .andExpect(view().name("play"))
                 .andExpect(model().attributeExists("user"))
                 .andExpect(model().attributeExists("progress"))
-                // フォーム入力用の空オブジェクトが渡されているか重要チェック
                 .andExpect(model().attributeExists("answerForm"));
     }
 
@@ -116,6 +119,10 @@ public class GameControllerTest {
      * POST /play/answer の正常系（正解）テスト。
      * GameServiceが true を返した場合、成功メッセージ付きで
      * ゲーム画面へリダイレクトされることを確認する。
+     * 
+     * @author R.Morioka
+     * @version 1.1 (時間引数追加)
+     * @since 1.0
      */
     @Test
     @DisplayName("POST /play/answer: 正解の場合 - メッセージ付きでリダイレクトされる")
@@ -125,13 +132,14 @@ public class GameControllerTest {
         mockUser.setId("test-user");
 
         when(authService.authOrCreateUser(any(), any())).thenReturn(mockUser);
-        // 正解(true)を返すように仕込む
-        when(gameService.checkAnswer(eq("test-user"), eq("apple"))).thenReturn(true);
+        
+        // ★修正: 第3引数(elapsedSeconds)を any() で受け入れるように変更
+        when(gameService.checkAnswer(eq("test-user"), eq("apple"), any())).thenReturn(true);
 
         // 2. 実行と検証 (When & Then)
         mockMvc.perform(post("/play/answer")
                 .param("answer", "apple")
-        // .with(csrf()) // CSRF対策トークン（Security導入時用）
+                .param("elapsedSeconds", "120") // ★念のため送信データにも含めておく
         )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/play"))
@@ -142,6 +150,10 @@ public class GameControllerTest {
      * POST /play/answer の準正常系（不正解）テスト。
      * GameServiceが false を返した場合、エラーメッセージ付きで
      * ゲーム画面へリダイレクトされることを確認する。
+     * 
+     * @author R.Morioka
+     * @version 1.1 (時間引数追加)
+     * @since 1.0
      */
     @Test
     @DisplayName("POST /play/answer: 不正解の場合 - エラーメッセージ付きでリダイレクトされる")
@@ -151,13 +163,14 @@ public class GameControllerTest {
         mockUser.setId("test-user");
 
         when(authService.authOrCreateUser(any(), any())).thenReturn(mockUser);
-        // 不正解(false)を返すように仕込む
-        when(gameService.checkAnswer(eq("test-user"), any())).thenReturn(false);
+        
+        // ★修正: 第3引数(elapsedSeconds)を any() で受け入れるように変更
+        when(gameService.checkAnswer(eq("test-user"), any(), any())).thenReturn(false);
 
         // 2. 実行と検証 (When & Then)
         mockMvc.perform(post("/play/answer")
                 .param("answer", "wrong_answer")
-        // .with(csrf())
+                .param("elapsedSeconds", "130") // ★念のため送信データにも含めておく
         )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/play"))
@@ -172,7 +185,6 @@ public class GameControllerTest {
      * @version 1.0
      * @since 1.0
      */
-
     @Test
     @DisplayName("POST /play/restart: リスタート処理が実行され、プレイ画面へリダイレクトされる")
     void testRestartGame() throws Exception {
@@ -185,23 +197,20 @@ public class GameControllerTest {
         when(authService.authOrCreateUser(any(), any())).thenReturn(mockUser);
 
         // 2. 実行 & 検証
-        mockMvc.perform(post("/play" + PathConst.RESTART) // /play/restart
-        // .with(csrf()) // セキュリティ入れたらコメントアウト外す
-        )
+        mockMvc.perform(post("/play" + PathConst.RESTART))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/play")); // リダイレクト先確認
+                .andExpect(redirectedUrl("/play"));
 
-        // Serviceの resetGame がちゃんと1回呼ばれたか確認
         verify(gameService, times(1)).resetGame(userId);
     }
 
     /**
      * Stage 1（天秤パズル）のプレイ画面表示テスト。
-     * 
-     * 期待値:
+     * * 期待値:
      * ステータスコードが200 (OK) であること
      * View名が "play" であること
      * Modelに "scaleItems" (天秤アイテムリスト) が含まれていること
+     * 
      * @author R.Morioka
      * @version 1.0
      * @since 1.0
@@ -227,16 +236,16 @@ public class GameControllerTest {
         mockMvc.perform(get(PathConst.PLAY))
                 .andExpect(status().isOk())
                 .andExpect(view().name(ViewConst.VIEW_PLAY))
-                .andExpect(model().attributeExists("scaleItems")); // ★ここがREDになるはず
+                .andExpect(model().attributeExists("scaleItems"));
     }
 
     /**
      * Stage 2（人狼パズル）のプレイ画面表示テスト。
-     * 
-     * 期待値:
+     * * 期待値:
      * ステータスコードが200 (OK) であること
      * View名が "play" であること
      * Modelに "suspects" (容疑者リスト) が含まれていること
+     * 
      * @author R.Morioka
      * @version 1.0
      * @since 1.0
@@ -262,6 +271,6 @@ public class GameControllerTest {
         mockMvc.perform(get(PathConst.PLAY))
                 .andExpect(status().isOk())
                 .andExpect(view().name(ViewConst.VIEW_PLAY))
-                .andExpect(model().attributeExists("suspects")); // ★ここもREDになるはず
+                .andExpect(model().attributeExists("suspects"));
     }
 }

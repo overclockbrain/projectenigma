@@ -28,6 +28,8 @@
             </div>
 
             <form th:action="@{/play/answer}" th:object="${answerForm}" method="post" class="answer-form">
+                <input type="hidden" id="hidden-timer" th:field="*{elapsedSeconds}">
+
                 <input type="hidden" id="answer-input" th:field="*{answer}">
                 <button id="submit-btn" class="btn btn-answer" th:text="#{btn.answer}">
                     ANSWER
