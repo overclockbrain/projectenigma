@@ -8,81 +8,27 @@
         <p class="riddle-desc" th:text="#{stage2.desc}">Find the liar...</p>
 
         <div class="suspects-grid">
-            
-            <div class="suspect" data-id="E">
-                <div class="speech-bubble" th:text="#{stage2.quote.e}">...</div>
-                <div class="suspect-icon" data-original-face="👨‍🌾">👨‍🌾</div>
-                <div class="suspect-name"><span th:text="#{stage2.name.prefix}">Suspect</span> E</div>
-            </div>
+            <div th:each="suspect : ${suspects}" 
+                class="suspect" 
+                th:data-id="${suspect.id}">
 
-            <div class="suspect" data-id="A">
-                <div class="speech-bubble" th:text="#{stage2.quote.a}">...</div>
-                <div class="suspect-icon" data-original-face="👱‍♂️">👱‍♂️</div>
-                <div class="suspect-name"><span th:text="#{stage2.name.prefix}">Suspect</span> A</div>
-            </div>
+                <div class="speech-bubble" 
+                    th:text="#{__${suspect.quoteKey}__}">
+                    ...
+                </div>
 
-            <div class="suspect" data-id="F">
-                <div class="speech-bubble" th:text="#{stage2.quote.f}">...</div>
-                <div class="suspect-icon" data-original-face="👩‍🍳">👩‍🍳</div>
-                <div class="suspect-name"><span th:text="#{stage2.name.prefix}">Suspect</span> F</div>
-            </div>
+                <div class="suspect-icon" 
+                    th:data-original-face="${suspect.icon}"
+                    th:text="${suspect.icon}">
+                    👨‍🌾
+                </div>
 
-            <div class="suspect" data-id="G">
-                <div class="speech-bubble" th:text="#{stage2.quote.g}">...</div>
-                <div class="suspect-icon" data-original-face="👮‍♂️">👮‍♂️</div>
-                <div class="suspect-name"><span th:text="#{stage2.name.prefix}">Suspect</span> G</div>
+                <div class="suspect-name">
+                    <span th:text="#{stage2.name.prefix}">Suspect</span> 
+                    <span th:text="${suspect.id}">E</span>
+                </div>
             </div>
-
-            <div class="suspect" data-id="C">
-                <div class="speech-bubble" th:text="#{stage2.quote.c}">...</div>
-                <div class="suspect-icon" data-original-face="👴">👴</div>
-                <div class="suspect-name"><span th:text="#{stage2.name.prefix}">Suspect</span> C</div>
-            </div>
-
-            <div class="suspect" data-id="H">
-                <div class="speech-bubble" th:text="#{stage2.quote.h}">...</div>
-                <div class="suspect-icon" data-original-face="🧙‍♀️">🧙‍♀️</div>
-                <div class="suspect-name"><span th:text="#{stage2.name.prefix}">Suspect</span> H</div>
-            </div>
-
-            <div class="suspect" data-id="B">
-                <div class="speech-bubble" th:text="#{stage2.quote.b}">...</div>
-                <div class="suspect-icon" data-original-face="👩‍🦰">👩‍🦰</div>
-                <div class="suspect-name"><span th:text="#{stage2.name.prefix}">Suspect</span> B</div>
-            </div>
-
-            <div class="suspect" data-id="I">
-                <div class="speech-bubble" th:text="#{stage2.quote.i}">...</div>
-                <div class="suspect-icon" data-original-face="👷‍♂️">👷‍♂️</div>
-                <div class="suspect-name"><span th:text="#{stage2.name.prefix}">Suspect</span> I</div>
-            </div>
-
-            <div class="suspect" data-id="J">
-                <div class="speech-bubble" th:text="#{stage2.quote.j}">...</div>
-                <div class="suspect-icon" data-original-face="👩‍🎤">👩‍🎤</div>
-                <div class="suspect-name"><span th:text="#{stage2.name.prefix}">Suspect</span> J</div>
-            </div>
-
-            <div class="suspect" data-id="D">
-                <div class="speech-bubble" th:text="#{stage2.quote.d}">...</div>
-                <div class="suspect-icon" data-original-face="👦">👦</div>
-                <div class="suspect-name"><span th:text="#{stage2.name.prefix}">Suspect</span> D</div>
-            </div>
-
-            <div class="suspect" data-id="K">
-                <div class="speech-bubble" th:text="#{stage2.quote.k}">...</div>
-                <div class="suspect-icon" data-original-face="🕵️‍♂️">🕵️‍♂️</div>
-                <div class="suspect-name"><span th:text="#{stage2.name.prefix}">Suspect</span> K</div>
-            </div>
-
-             <div class="suspect" data-id="L">
-                <div class="speech-bubble" th:text="#{stage2.quote.l}">...</div>
-                <div class="suspect-icon" data-original-face="🧟">🧟</div>
-                <div class="suspect-name"><span th:text="#{stage2.name.prefix}">Suspect</span> L</div>
-            </div>
-
         </div>
-
         <p id="selection-display" 
            th:text="#{stage2.select}"
            th:data-pattern="#{stage2.you_suspect}">
