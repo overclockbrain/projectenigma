@@ -1,18 +1,22 @@
 package com.example.projectenigma.cipher.controller;
 
 import com.example.projectenigma.cipher.constant.PathConst;
+import com.example.projectenigma.cipher.constant.ViewConst;
 import com.example.projectenigma.cipher.entity.GameProgress;
 import com.example.projectenigma.cipher.entity.Riddle;
 import com.example.projectenigma.cipher.entity.User;
 import com.example.projectenigma.cipher.repository.GameProgressRepository;
 import com.example.projectenigma.cipher.service.AuthService;
 import com.example.projectenigma.cipher.service.GameService;
+import com.example.projectenigma.cipher.strategy.Stage1Strategy;
+import com.example.projectenigma.cipher.strategy.Stage2Strategy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -38,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @since 1.0
  */
 @WebMvcTest(GameController.class)
+@Import({Stage1Strategy.class, Stage2Strategy.class})
 public class GameControllerTest {
 
     @Autowired
@@ -188,5 +193,75 @@ public class GameControllerTest {
 
         // Serviceの resetGame がちゃんと1回呼ばれたか確認
         verify(gameService, times(1)).resetGame(userId);
+    }
+
+    /**
+     * Stage 1（天秤パズル）のプレイ画面表示テスト。
+     * 
+     * 期待値:
+     * ステータスコードが200 (OK) であること
+     * View名が "play" であること
+     * Modelに "scaleItems" (天秤アイテムリスト) が含まれていること
+     * @author R.Morioka
+     * @version 1.0
+     * @since 1.0
+     */
+    @Test
+    @DisplayName("Stage1表示時: 天秤アイテム(scaleItems)がModelに渡されること")
+    void testPlayPage_Stage1_LoadsItems() throws Exception {
+        // Given
+        User mockUser = new User();
+        mockUser.setId("test-user");
+        
+        GameProgress mockProgress = new GameProgress();
+        mockProgress.setUserId("test-user");
+        mockProgress.setCurrentStageId(1); // Stage 1
+
+        Riddle mockRiddle = new Riddle(1, "5050", "Hint");
+
+        when(authService.authOrCreateUser(any(), any())).thenReturn(mockUser);
+        when(gameService.getProgress("test-user")).thenReturn(mockProgress);
+        when(gameService.getCurrentRiddle("test-user")).thenReturn(mockRiddle);
+
+        // When & Then
+        mockMvc.perform(get(PathConst.PLAY))
+                .andExpect(status().isOk())
+                .andExpect(view().name(ViewConst.VIEW_PLAY))
+                .andExpect(model().attributeExists("scaleItems")); // ★ここがREDになるはず
+    }
+
+    /**
+     * Stage 2（人狼パズル）のプレイ画面表示テスト。
+     * 
+     * 期待値:
+     * ステータスコードが200 (OK) であること
+     * View名が "play" であること
+     * Modelに "suspects" (容疑者リスト) が含まれていること
+     * @author R.Morioka
+     * @version 1.0
+     * @since 1.0
+     */
+    @Test
+    @DisplayName("Stage2表示時: 容疑者リスト(suspects)がModelに渡されること")
+    void testPlayPage_Stage2_LoadsSuspects() throws Exception {
+        // Given
+        User mockUser = new User();
+        mockUser.setId("test-user");
+        
+        GameProgress mockProgress = new GameProgress();
+        mockProgress.setUserId("test-user");
+        mockProgress.setCurrentStageId(2); // Stage 2
+
+        Riddle mockRiddle = new Riddle(2, "B", "Hint");
+
+        when(authService.authOrCreateUser(any(), any())).thenReturn(mockUser);
+        when(gameService.getProgress("test-user")).thenReturn(mockProgress);
+        when(gameService.getCurrentRiddle("test-user")).thenReturn(mockRiddle);
+
+        // When & Then
+        mockMvc.perform(get(PathConst.PLAY))
+                .andExpect(status().isOk())
+                .andExpect(view().name(ViewConst.VIEW_PLAY))
+                .andExpect(model().attributeExists("suspects")); // ★ここもREDになるはず
     }
 }

@@ -15,12 +15,13 @@
         <div class="item-area drop-zone" id="item-storage">
             <p class="area-instruction" th:text="#{stage1.instruction}">Select items...</p>
             
-            <div class="draggable-item item-box" draggable="true" data-weight="50">📦</div>
-            <div class="draggable-item item-water" draggable="true" data-weight="50">💧</div>
-            <div class="draggable-item item-gold" draggable="true" data-weight="40">💰</div>
-            <div class="draggable-item item-rock" draggable="true" data-weight="30">🪨</div>
-            <div class="draggable-item item-tool" draggable="true" data-weight="20">🔧</div>
-            <div class="draggable-item item-feather" draggable="true" data-weight="10">🪶</div>
+            <div th:each="item : ${scaleItems}"
+                class="draggable-item"
+                th:classappend="${item.cssClass}"
+                draggable="true"
+                th:data-weight="${item.weight}"
+                th:text="${item.name}">
+            </div>
         </div>
     </div>
 </body>
