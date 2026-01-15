@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resetBall();
         isPlaying = true;
         btnStart.disabled = true;
-        gameInterval = setInterval(update, 200);
+        gameInterval = setInterval(update, 500);
     });
 
     renderBoard();
