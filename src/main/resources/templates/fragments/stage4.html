@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="riddle-content">
+    <h2 class="stage-title" th:text="#{stage4.title}">Stage 4: Gravity Architect</h2>
+    <p class="stage-hint" th:text="${riddle.hint}"></p>
+
+    <div id="game-container">
+        <div id="grid-board"></div>
+    </div>
+
+    <div class="controls text-center mb-4">
+        <button id="btn-red" class="btn btn-danger mx-2" th:text="#{stage4.btn.red}">Red Switch</button>
+        <button id="btn-blue" class="btn btn-primary mx-2" th:text="#{stage4.btn.blue}">Blue Switch</button>
+        <button id="btn-start" class="btn btn-success mx-2" th:text="#{stage4.btn.start}">Drop Ball</button>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const stage4Config = /*[[${stage4Config}]]*/ {};
+        /*]]>*/
+    </script>
+    
+    <script th:src="@{/js/stage4.js}"></script>
+</div>
+</body>
+</html>
