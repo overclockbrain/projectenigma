@@ -1,6 +1,6 @@
 /**
  * Project Enigma メインスタイルシート
- * 最終整理版 (v1.5)
+ * 最終整理版 (v2.0 - Stage4 Border Fix)
  */
 
 /* ==============================================
@@ -24,7 +24,7 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     text-align: center;
     min-width: 400px;
-    max-width: 900px; /* 横幅が広がりすぎないように制限 */
+    max-width: 900px;
 }
 
 h1 {
@@ -114,7 +114,7 @@ a.btn:hover {
     width: 250px;
     border: 2px solid #ddd;
     border-radius: 4px;
-    margin-right: 10px; /* ボタンとの隙間 */
+    margin-right: 10px;
 }
 
 /* ==============================================
@@ -400,7 +400,7 @@ details[open] .hint-content {
 }
 
 /* ==============================================
- * 8. Stage 3: 水漏れパズル (順番自由・レンガ版)
+ * 8. Stage 3: 水漏れパズル
  * ============================================== */
 .stage3-container {
     position: relative; height: 400px;
@@ -411,7 +411,7 @@ details[open] .hint-content {
 /* 背景 (レンガ壁) */
 .wall-container {
     position: absolute; top: 0; left: 0; width: 100%; height: 75%;
-    background-image: url('/images/brick-wall.png'); /* 画像ファイル */
+    background-image: url('/images/brick-wall.png');
     background-size: cover; background-position: center;
     border-bottom: 4px solid #4e342e; z-index: 1;
 }
@@ -453,12 +453,9 @@ details[open] .hint-content {
     width: 30px; height: 250px;
     background: repeating-linear-gradient(180deg, #2196f3, #64b5f6 20px);
 }
-.falling-water.small { display: none; } /* 今回の仕様では小水は使わないが定義だけ残す */
+.falling-water.small { display: none; }
 
-
-/* --- アイテム定義 --- */
-
-/* 右上のアイテム: 丸い蓋 (中身あり) */
+/* アイテム定義 */
 .solid-part {
     position: absolute; top: 20px; right: 20px;
     width: 50px; height: 50px;
@@ -470,53 +467,216 @@ details[open] .hint-content {
 }
 .solid-part:active { transform: scale(1.1); }
 
-/* フッターのアイテム: Oリング (枠のみ) */
 .stolen-letter {
     display: inline-block; cursor: grab;
     width: 0.25em; height: 0.25em;
     border-radius: 50%;
     color: transparent; background: transparent;
-    border: 2px solid #333; /* レンガ色の枠 */
+    border: 2px solid #333;
     vertical-align: middle;
 }
 
-
-/* --- 穴の状態変化 (視覚効果) --- */
-
-/* 1. リングが入っている状態 */
+/* 穴の状態変化 */
 .leak-hole.has-ring::before {
-    content: '';
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    border: 6px solid #795548; /* リングの見た目 */
-    border-radius: 50%; box-sizing: border-box; z-index: 5;
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    border: 6px solid #795548; border-radius: 50%; box-sizing: border-box; z-index: 5;
 }
-
-/* 2. 蓋が入っている状態 */
 .leak-hole.has-lid::after {
-    content: '';
-    position: absolute; top: 5px; left: 5px;
+    content: ''; position: absolute; top: 5px; left: 5px;
     width: calc(100% - 10px); height: calc(100% - 10px);
-    background: #795548; /* 蓋の見た目 */
-    border-radius: 50%; z-index: 6;
+    background: #795548; border-radius: 50%; z-index: 6;
 }
-
-/* 3. 完成形 (Fixed) */
 .leak-hole.fixed {
-    background: #795548; /* 全体を塗りつぶし */
-    border: 4px solid #3e2723;
+    background: #795548; border: 4px solid #3e2723;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
 }
-/* 水を止める */
-.leak-hole.fixed .falling-water {
-    display: none !important;
+.leak-hole.fixed .falling-water { display: none !important; }
+.leak-hole.fixed::before, .leak-hole.fixed::after { display: none; }
+.leak-hole.fixed .solid-part, .leak-hole.fixed .stolen-letter { display: none; }
+
+
+/* ==============================================
+ * 9. Stage 4: Gravity Architect (完全修正版)
+ * ============================================== */
+#game-container {
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
 }
-/* 擬似要素を消す (完成形だけで表現するため) */
-.leak-hole.fixed::before,
-.leak-hole.fixed::after {
-    display: none;
+
+#grid-board {
+    display: grid;
+    gap: 0;
+    justify-content: center;
+    background-color: #333;
+    padding: 4px;
+    border-radius: 4px;
 }
-/* 中に入れたアイテムDOMも消す */
-.leak-hole.fixed .solid-part,
-.leak-hole.fixed .stolen-letter {
-    display: none;
+
+/* タイル土台 */
+.tile {
+    width: 60px;
+    height: 60px;
+    position: relative; /* 子要素(ボールや坂)の基準点 */
+    background-color: #fff; /* 空洞部分は白 */
+    overflow: hidden; /* はみ出し防止 */
+}
+
+/* --- 坂道 (::before 疑似要素で作る三角形) --- */
+.tile.slope-right::before,
+.tile.slope-left::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    z-index: 1; /* ボールの下 */
+}
+
+/* --- 坂道 (修正版: 三角形の向きを完全反転) --- */
+
+/* * 右へ転がる坂 [ \ ] 
+ * 見た目: 左下が壁、右上が空洞。
+ * 方法: 下線を色付けして、右側の境界線を透明にして削る。
+ */
+.slope-right::before {
+    border-bottom: 60px solid #aab7b8; /* 土台の色 */
+    border-right: 60px solid transparent; /* 右上を透明に削る */
+    border-left: 0;
+    width: 0; height: 0;
+}
+.tile-red.slope-right::before {
+    border-bottom-color: #ffcccc; /* 赤色の土台 */
+}
+.tile-blue.slope-right::before {
+    border-bottom-color: #cce5ff; /* 青色の土台 */
+}
+
+/* * 左へ転がる坂 [ / ] 
+ * 見た目: 右下が壁、左上が空洞。
+ * 方法: 下線を色付けして、左側の境界線を透明にして削る。
+ */
+.slope-left::before {
+    border-bottom: 60px solid #aab7b8;
+    border-left: 60px solid transparent; /* 左上を透明に削る */
+    border-right: 0;
+    width: 0; height: 0;
+}
+.tile-red.slope-left::before {
+    border-bottom-color: #ffcccc;
+}
+.tile-blue.slope-left::before {
+    border-bottom-color: #cce5ff;
+}
+
+/* === ゴール (Simple Flat Design) === */
+.tile-goal {
+    /* 派手なグラデーションをやめて、目に優しい緑のベタ塗りに */
+    background-color: #28a745; 
+    
+    /* 文字設定 */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem; /* ほどよい大きさ */
+    
+    /* 影や光沢は全部なし */
+    box-shadow: none;
+    text-shadow: none;
+    
+    z-index: 5;
+}
+
+/* ボール */
+.ball {
+    width: 34px;
+    height: 34px;
+    background: radial-gradient(circle at 30% 30%, #ffd700, #b8860b);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* 真ん中に配置 */
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    z-index: 10; /* 最前面 */
+    transition: top 0.5s ease, left 0.5s ease; /* 動きをヌルっとさせる */
+}
+
+/* === Stage 4 Controls: Simple & Clean === */
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* ボタンの間隔 */
+    margin-top: 1.5rem;
+    /* 背景色などは消してシンプルに */
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+}
+
+/* 共通ボタンスタイル (他のボタンと合わせる) */
+#btn-red, #btn-blue, #btn-start {
+    border: none;
+    color: white;
+    padding: 10px 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 4px; /* 既存のデザインに合わせる */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* ほんのり影 */
+    letter-spacing: 0.5px;
+}
+
+/* ホバー時の動き */
+#btn-red:hover, #btn-blue:hover, #btn-start:hover {
+    opacity: 0.9;
+    transform: translateY(-2px); /* ちょっと浮く */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* クリック時 */
+#btn-red:active, #btn-blue:active, #btn-start:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* --- 色設定 (目に優しいトーン) --- */
+
+/* 赤スイッチ */
+#btn-red {
+    background-color: #d9534f; /* Bootstrap Danger系 */
+}
+
+/* 青スイッチ */
+#btn-blue {
+    background-color: #0275d8; /* Bootstrap Primary系 */
+}
+
+/* スタートボタン */
+#btn-start {
+    background-color: #28a745; /* Bootstrap Success系 */
+    min-width: 140px;
+}
+#btn-start:disabled {
+    background-color: #6c757d; /* グレーアウト */
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* === スタート地点 (Launch Pad) === */
+.tile-start {
+    background-color: #333; /* 暗い色で「穴」っぽく */
+    color: #ffd700; /* 金文字 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.8rem;
 }

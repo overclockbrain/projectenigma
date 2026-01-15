@@ -2,16 +2,25 @@
     {
         "stageId": 1,
         "answer": "5050",
-        "hint": "Mission: The scale is tipped. Restore the equilibrium to find the key."
+        "hint": "Mission: The scale is tipped. Calculate the sum of the sequence from 1 to 100 to restore equilibrium.",
+        "stageData": null
     },
     {
         "stageId": 2,
         "answer": "B",
-        "hint": "Four figures stand before you. The mission is simple: 'Find the one that is not human.'"
+        "hint": "Mission: Interrogate the suspects. Only one speaks the truth; the others are wolves. Find the outlier.",
+        "stageData": null
     },
     {
         "stageId": 3,
         "answer": "fixed",
-        "hint": "The piece you need is hiding in the footer."
+        "hint": "Mission: Locate the missing piece. It is simply hiding in the footer. Look closely at 'home'.",
+        "stageData": null
+    },
+    {
+        "stageId": 4,
+        "answer": "NEWTON",
+        "hint": "Mission: Master the gravity. Toggle the Red and Blue fields to guide the falling star to its goal.",
+        "stageData": "{\"grid\": [[0,0,8,0,0],[0,0,1,0,0], [0,2,0,2,0], [1,0,0,0,1], [0,0,1,2,0], [0,0,9,0,0]], \"start\": [0, 2]}"
     }
 ]

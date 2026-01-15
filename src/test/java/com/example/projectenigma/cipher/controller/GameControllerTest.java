@@ -10,6 +10,7 @@ import com.example.projectenigma.cipher.service.AuthService;
 import com.example.projectenigma.cipher.service.GameService;
 import com.example.projectenigma.cipher.strategy.Stage1Strategy;
 import com.example.projectenigma.cipher.strategy.Stage2Strategy;
+import com.example.projectenigma.cipher.strategy.Stage4Strategy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @since 1.0
  */
 @WebMvcTest(GameController.class)
-@Import({Stage1Strategy.class, Stage2Strategy.class})
+@Import({Stage1Strategy.class, Stage2Strategy.class, Stage4Strategy.class})
 public class GameControllerTest {
 
     @Autowired
@@ -272,5 +273,42 @@ public class GameControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name(ViewConst.VIEW_PLAY))
                 .andExpect(model().attributeExists("suspects"));
+    }
+
+    /**
+     * Stage 4 (Gravity Architect) のプレイ画面表示テスト。
+     * * 期待値:
+     * ステータスコードが200 (OK) であること
+     * View名が "play" であること
+     * Modelに "stage4Config" (盤面データ) が含まれていること
+     * 
+     * @author R.Morioka
+     * @version 1.0
+     * @since 1.0
+     */
+    @Test
+    @DisplayName("Stage4表示時: 盤面設定(stage4Config)がModelに渡されること")
+    void testPlayPage_Stage4_LoadsConfig() throws Exception {
+        // Given
+        User mockUser = new User();
+        mockUser.setId("test-user");
+        
+        GameProgress mockProgress = new GameProgress();
+        mockProgress.setUserId("test-user");
+        mockProgress.setCurrentStageId(4); // Stage 4
+
+        // Stage 4用のRiddle（JSONデータ入り）
+        Riddle mockRiddle = new Riddle(4, "NEWTON", "Hint");
+        mockRiddle.setStageData("{\"grid\": [[0,1]], \"start\": [0,0]}"); // テスト用の簡易JSON
+
+        when(authService.authOrCreateUser(any(), any())).thenReturn(mockUser);
+        when(gameService.getProgress("test-user")).thenReturn(mockProgress);
+        when(gameService.getCurrentRiddle("test-user")).thenReturn(mockRiddle);
+
+        // When & Then
+        mockMvc.perform(get(PathConst.PLAY))
+                .andExpect(status().isOk())
+                .andExpect(view().name(ViewConst.VIEW_PLAY))
+                .andExpect(model().attributeExists("stage4Config")); // ★これが重要！
     }
 }
